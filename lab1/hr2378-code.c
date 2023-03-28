@@ -80,7 +80,7 @@ void count_chars_parallel(int N, int num,char *filename, int *solution){
 
     FILE* file_ptr;
     file_ptr = fopen(filename, "r");
-    char *list = malloc(N);
+    char *list = malloc(num);
     char ch;
     int step = 1 + ((num - 1) /N);
 
@@ -96,6 +96,14 @@ void count_chars_parallel(int N, int num,char *filename, int *solution){
         } else {
             list[i] = ch;
         }
+    }
+
+    if(DEBUG){
+        printf("Characters read from file in list\n");
+        for (int i = 0; i < num; i++){
+            printf("%c", list[i]);
+        }
+        printf("\n");
     }
 
     #pragma omp parallel num_threads(N)
@@ -119,6 +127,11 @@ void count_chars_single_thread(int num, int step, char *list, int *solution){
 
     if(DEBUG){
         printf("Thread(%d): num %d step %d start %d end %d\n", my_rank, num, step, start, end);
+        printf("Characters to read from list\n");
+        for (int i = start; i < end; i++){
+            printf("%c", list[i]);
+        }
+        printf("\n");
     }
 
     for (int i = start; i < end; i++){
@@ -126,7 +139,7 @@ void count_chars_single_thread(int num, int step, char *list, int *solution){
         if(ch == EOF){
             break;
         }
-        if(DEBUG){ printf("Thread(%d): %c\n", my_rank, ch);}
+        if(DEBUG){ printf("Thread(%d): %c(%c)\n", my_rank, ch, list[i]);}
         if(ch == 'a'){
             local_solution[0]++;
         } else if(ch == 'b'){
