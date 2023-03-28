@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     srand((unsigned int)time(NULL));
 
     for (int i=0;i<count;i++){
-		x = 97 + ((float)rand()/(float)(RAND_MAX)) * 4;
+		x = 97 + ((float)rand()/(float)(RAND_MAX)) * 3;
 		fprintf(fp, "%c", x);
 	}
     
