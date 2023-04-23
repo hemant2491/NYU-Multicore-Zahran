@@ -7,7 +7,7 @@
 bool DEBUG = true;
 
 void print_usage();
-
+void remove_multiple(int start, int end, int N, int t, bool *nums);
 
 int main(int argc, char *argv[]){
 
@@ -17,18 +17,12 @@ int main(int argc, char *argv[]){
         exit(1);
     }
 
-    int N;
-    int t;
+    int N = atoi(argv[1]);
+    int t = atoi(argv[2]);
 
-    N = atoi(argv[1]);
-    t = atoi(argv[2]);
+    // if(DEBUG){ printf("N = %d\nt = %d\n", N, t);}
 
-    if(DEBUG){ printf("N = %d\nt = %d\n", N, t);}
-
-    int start = 2;
-    int end = ((N+1)/2);
-    // bool nums[N+1];
-    // memset( nums, true, (N+1) * sizeof(bool) );
+    double t_start = 0.0, t_taken = 0.0;
     bool* nums;
     nums = (bool*)malloc((N+1) * sizeof(bool));
     for(int idx = 0; idx < N+1; idx++){
@@ -40,13 +34,17 @@ int main(int argc, char *argv[]){
         exit(0);
     }
 
-    for (int i = start; i<=end; i++){
-        for (int j = 2*i; j < N+1; j=j+i){
-            nums[j] = false;
-        }
-    }
-
+    int start = 2;
+    int end = ((N+1)/2);
     
+    t_start = omp_get_wtime();
+    #pragma omp parallel num_threads(t)
+    {
+        remove_multiple(start, end, N, t, nums);
+    }
+    t_taken = omp_get_wtime() - t_start;
+    printf("Time take for the main part: %f\n", t_taken);
+
     int counter = 1;
     for(int k = start; k < N+1; k++){
         if(nums[k]){
@@ -56,10 +54,18 @@ int main(int argc, char *argv[]){
     }
 }
 
+void remove_multiple(int start, int end, int N, int t, bool *nums){
+    int tid = omp_get_thread_num();
+    
+    for (int i = start+tid; i<=end; i=i+t){
+        if(nums[i]){
+            for (int j = 2*i; j < N+1; j=j+i){
+                nums[j] = false;
+            }
+        }
+    }
 
-
-
-
+}
 
 void print_usage(){
     printf("Usage:\n");
